@@ -85,11 +85,117 @@ function switchTab(tabName) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
     
-    if(tabName === 'chat' || tabName === 'settings') {
+    if(tabName === 'chat' || tabName === 'settings' || tabName === 'music') {
         document.getElementById(`view-${tabName}`).classList.add('active');
         const tabs = document.querySelectorAll('.col-left .tab');
         if(tabName === 'chat') tabs[0].classList.add('active');
         if(tabName === 'settings') tabs[1].classList.add('active');
+        if(tabName === 'music') {
+            tabs[2].classList.add('active');
+            loadMusicHistory();
+        }
+    }
+}
+
+async function playMusicQuery() {
+    const input = document.getElementById('music-input');
+    const query = input.value.trim();
+    if(!query) return;
+    
+    addMessage('You', `Play music: ${query}`);
+    try {
+        const resp = await pywebview.api.process_command(`m!play ${query}`);
+        addMessage('AI', resp);
+        input.value = '';
+        setTimeout(loadMusicHistory, 2000); // Reload history after play
+    } catch(e) { console.error(e); }
+}
+
+async function loadMusicHistory() {
+    const list = document.getElementById('music-history-list');
+    if(!list) return;
+    list.innerHTML = '<div style="padding:10px; color:#aaa">Loading...</div>';
+    
+    try {
+        const history = await pywebview.api.get_music_history();
+        list.innerHTML = '';
+        
+        if(!history || history.length === 0) {
+            list.innerHTML = '<div style="padding:10px; color:#aaa">No history.</div>';
+            return;
+        }
+        
+        history.forEach((item, index) => {
+            const row = document.createElement('div');
+            row.className = 'task-item';
+            row.style.cursor = 'pointer';
+            
+            const content = document.createElement('div');
+            content.className = 'task-content';
+            content.style.display = 'flex';
+            content.style.flexDirection = 'column';
+            
+            const title = document.createElement('div');
+            title.className = 'task-title';
+            title.textContent = `${index+1}. ${item.title}`;
+            
+            const meta = document.createElement('div');
+            meta.className = 'task-meta';
+            const date = new Date(item.timestamp).toLocaleString();
+            meta.textContent = `${item.type} • ${date}`;
+            
+            content.appendChild(title);
+            content.appendChild(meta);
+            
+            const playBtn = document.createElement('button');
+            playBtn.className = 'btn-icon';
+            playBtn.innerHTML = '▶';
+            playBtn.title = "Play";
+            playBtn.onclick = async (e) => {
+                e.stopPropagation();
+                await pywebview.api.play_music_history_item(index);
+            }
+
+            const delBtn = document.createElement('button');
+            delBtn.className = 'btn-icon';
+            delBtn.innerHTML = '✕';
+            delBtn.style.color = 'var(--text-dim)';
+            delBtn.style.marginLeft = '5px';
+            delBtn.title = "Remove";
+            delBtn.onclick = async (e) => {
+                e.stopPropagation();
+                await pywebview.api.delete_history_item(index + 1); // backend uses 1-based
+                loadMusicHistory();
+            }
+            
+            row.appendChild(content);
+            row.appendChild(playBtn);
+            row.appendChild(delBtn);
+            list.appendChild(row);
+        });
+        
+    } catch(err) {
+        console.error("Music History Error", err);
+        list.innerHTML = '<div style="padding:10px; color:red">Error loading history.</div>';
+    }
+}
+
+async function clearMusicHistory() {
+    if(confirm("Clear all music history?")) {
+        await pywebview.api.clear_history();
+        loadMusicHistory();
+    }
+}
+
+// Theme
+function toggleTheme() {
+    const body = document.body;
+    body.classList.toggle('light-mode');
+    const btn = document.getElementById('theme-btn');
+    if (body.classList.contains('light-mode')) {
+        btn.textContent = 'Switch to Dark Mode';
+    } else {
+         btn.textContent = 'Switch to Light Mode';
     }
 }
 
@@ -218,12 +324,16 @@ function createTaskElement(item, showDate) {
     
     content.innerHTML = titleHtml + `<div class="task-meta">${metaHtml}</div>`;
     
+    // Create Delete Button
     const del = document.createElement('button');
     del.className = 'btn-del';
-    del.innerHTML = '';
+    del.innerHTML = '✕';
+    del.title = "Delete Task";
     del.onclick = async () => {
-        await pywebview.api.delete_task(item.id);
-        loadDashboard();
+        if(confirm("Delete this task?")) {
+            await pywebview.api.delete_task(item.id);
+            loadDashboard();
+        }
     };
     
     div.appendChild(check);

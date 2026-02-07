@@ -27,6 +27,7 @@
                 <div class="tabs">
                     <button class="tab active" onclick="switchTab('chat')">Chat</button>
                     <button class="tab" onclick="switchTab('settings')">Settings</button>
+                    <button class="tab" onclick="switchTab('music')">Music</button>
                 </div>
 
                 <!-- Chat View -->
@@ -42,16 +43,37 @@
                     </div>
                 </div>
 
+                <!-- Music View -->
+                <div id="view-music" class="tab-content">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
+                        <h3>Music</h3>
+                        <div style="display:flex; gap:5px;">
+                            <select id="music-source" onchange="updateSetting('music_source', this.value)" style="padding:4px; font-size:12px; border-radius:4px; background:var(--bg-main); color:var(--text); border:1px solid var(--border)">
+                                <option value="Spotify">Spotify</option>
+                                <option value="YouTube">YouTube</option>
+                            </select>
+                            <button class="btn-icon" onclick="clearMusicHistory()" title="Clear All History" style="color:var(--danger)">🗑</button>
+                            <button class="btn-icon" onclick="loadMusicHistory()" title="Refresh">↻</button>
+                        </div>
+                    </div>
+                     <div class="input-group">
+                        <input type="text" id="music-input" placeholder="Search song..." onkeypress="if(event.key==='Enter') playMusicQuery()">
+                        <button onclick="playMusicQuery()">Play</button>
+                    </div>
+                    <div class="list-title" style="margin-top:10px; font-size:12px; color:var(--text-dim)">HISTORY</div>
+                    <div id="music-history-list" class="list-container" style="flex:1; overflow-y:auto; margin-top:5px;">
+                        <!-- History Items -->
+                    </div>
+                </div>
+
                 <!-- Settings View -->
                 <div id="view-settings" class="tab-content">
                     <h3>Configuration</h3>
                     <div class="setting-item">
-                        <label>Music Source</label>
-                        <select id="music-source" onchange="updateSetting('music_source', this.value)">
-                            <option value="Spotify">Spotify</option>
-                            <option value="YouTube">YouTube</option>
-                        </select>
+                        <label>Appearance</label>
+                         <button onclick="toggleTheme()" id="theme-btn">Switch to Light Mode</button>
                     </div>
+                    <!-- Moved Music Source to Music Tab -->
                     <div class="setting-item">
                         <button class="btn-danger" onclick="pywebview.api.quit_app()">Quit Application</button>
                     </div>

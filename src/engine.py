@@ -35,8 +35,14 @@ class AIEngine:
         # Rule -1: Productivity (Tasks/Notes/Calendar Events)
         if self.productivity:
             # Match: "Add event...", "Schedule...", "Deadline..." or "Project X due..."
-            prefix_match = re.search(r'(?:add event|schedule|remind me to|deadline for|add deadline|set deadline) (.+)', lower_input, re.IGNORECASE)
-            suffix_match = re.search(r'(.+) due (.+)', lower_input, re.IGNORECASE)
+            # Use user_input (original case) instead of lower_input for the regex text capture
+            
+            # Common prefixes
+            prefix_pattern = r'(?:add event|schedule|remind me to|deadline for|add deadline|set deadline)(?:\s+of)?\s+(.+)'
+            suffix_pattern = r'(.+) due (.+)'
+            
+            prefix_match = re.search(prefix_pattern, user_input, re.IGNORECASE)
+            suffix_match = re.search(suffix_pattern, user_input, re.IGNORECASE)
 
             if prefix_match or suffix_match:
                 raw_text = ""
@@ -58,10 +64,10 @@ class AIEngine:
                 end_time = None
                 
                 # 1. Extract Date
-                if "tomorrow" in raw_text:
+                if re.search(r'\btomorrow\b', raw_text, re.IGNORECASE):
                     date_val = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
                     title = re.sub(r'\btomorrow\b', '', title, flags=re.IGNORECASE)
-                elif "today" in raw_text:
+                elif re.search(r'\btoday\b', raw_text, re.IGNORECASE):
                     date_val = datetime.now().strftime("%Y-%m-%d")
                     title = re.sub(r'\btoday\b', '', title, flags=re.IGNORECASE)
                 # Next [Day] logic could be added here
@@ -83,9 +89,12 @@ class AIEngine:
                         title = title.replace(single_time.group(0), "")
 
                 # Clean Title Logic
-                # 1. Remove common prepositions at the start (e.g. "for lecture", "on meeting")
+                # 1. Remove common prepositions at the start ONLY if they make sense to remove
                 title = title.strip()
+                # If command was "Schedule OF [Course]", the 'of' is already consumed by prefix_pattern if present
+                # But just in case:
                 title = re.sub(r'^(?:for|on|at|about)\s+', '', title, flags=re.IGNORECASE)
+                
                 # 2. Remove "on" at the end if it was cut off weirdly, but use word boundary or just strip whitespace
                 title = title.strip()
                 
@@ -117,11 +126,23 @@ class AIEngine:
 
             if command == "m!add":
                 if not arg: return "Please provide a track name or link."
+                if arg.startswith("#") and arg[1:].isdigit():
+                    idx = int(arg[1:])
+                    hist = self.music.get_history()
+                    if 1 <= idx <= len(hist):
+                        item = hist[idx-1]
+                        return self.music.add_to_queue(item['title']) # Or use ID if logic permits
                 return self.music.add_to_queue(arg)
             
             if command == "m!play":
                 if not arg: return "Please provide a track name or link."
+                # Check for history index e.g., "m!play #1"
+                if arg.startswith("#") and arg[1:].isdigit():
+                    return self.music.play_from_history(int(arg[1:]))
                 return self.music.play_now(arg)
+            
+            if command == "m!history":
+                return self.music.format_history()
             
             if command == "m!loop":
                 return self.music.start_loop()
@@ -161,6 +182,16 @@ class AIEngine:
         
         if "balanced mode" in user_input:
              return system_settings.set_power_mode("balanced")
+
+        # Night light handling: open settings since automated toggle is unreliable
+        if "night light" in lower_input or "nightlight" in lower_input:
+            # detect explicit on/off request
+            if "on" in lower_input or "enable" in lower_input or "activate" in lower_input:
+                return system_settings.toggle_night_light('on')
+            if "off" in lower_input or "disable" in lower_input:
+                return system_settings.toggle_night_light('off')
+            # otherwise just open the Night light settings page
+            return system_settings.toggle_night_light()
 
         # Rule 4: System Actions (Shutdown, Lock, Sleep, Theme)
         if "shutdown" in user_input:

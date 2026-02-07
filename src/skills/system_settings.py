@@ -45,7 +45,8 @@ def open_settings(setting_name):
         "sound": "ms-settings:sound",
         "notifications": "ms-settings:notifications",
         "battery": "ms-settings:batterysaver",
-        "power": "ms-settings:powersleep"
+        "power": "ms-settings:powersleep",
+        "nightlight": "ms-settings:nightlight"
     }
     
     uri = uris.get(setting_name.lower())
@@ -56,3 +57,21 @@ def open_settings(setting_name):
         except Exception as e:
             return f"Failed to open settings: {e}"
     return f"I don't know the settings page for '{setting_name}'."
+
+
+def toggle_night_light(action=None):
+    """
+    Attempts to toggle Night light. Direct programmatic toggling requires
+    manipulating a Windows registry blob and is not reliable across versions.
+    This helper opens the Night light settings page where the user can toggle it,
+    and returns an explanatory message. If `action` is provided ('on'/'off'),
+    the function will still open the settings page because a safe automated
+    toggle is not implemented.
+    """
+    try:
+        os.system("start ms-settings:nightlight")
+        if action:
+            return "Opened Night light settings. Automatic toggle not supported; please use the switch in Settings."
+        return "Opened Night light settings. You can toggle Night light there."
+    except Exception as e:
+        return f"Failed to open Night light settings: {e}"

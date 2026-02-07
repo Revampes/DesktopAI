@@ -45,6 +45,13 @@ class DesktopAIBridge:
         self.productivity.toggle_task(task_id)
         return True
 
+    def get_music_history(self):
+        return self.engine.music.get_history()
+
+    def play_music_history_item(self, index):
+        # index is 0-based from UI probably, or let's use 1-based to match engine
+        return self.engine.music.play_from_history(int(index) + 1)
+
     def delete_task(self, task_id):
         self.productivity.delete_task(task_id)
         return True
@@ -230,7 +237,9 @@ def start_app():
     bridge.window = window
     window.expose(bridge.process_command, bridge.get_dashboard_data, bridge.toggle_task, 
                  bridge.delete_task, bridge.quick_add_task, bridge.update_setting, 
-                 bridge.quit_app, bridge.hide_window, bridge.minimize)
+                 bridge.quit_app, bridge.hide_window, bridge.minimize,
+                 bridge.get_music_history, bridge.play_music_history_item,
+                 bridge.engine.music.delete_history_item, bridge.engine.music.clear_history)
     
     # Initialize Tray
     setup_tray(window)

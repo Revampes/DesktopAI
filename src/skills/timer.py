@@ -44,14 +44,11 @@ class TimerSkill:
         # Sound?
         try:
             # Simple beep 3 times
-            import winsound
-            winsound.Beep(1000, 500)
-            winsound.Beep(1000, 500)
-            winsound.Beep(1000, 500)
-        except:
+            # import winsound
+            # winsound.Beep(1000, 500)
+            # winsound.Beep(1000, 500)
+            # winsound.Beep(1000, 500)
             pass
-            
-        try:
             notification.notify(
                 title='DesktopAI Timer',
                 message='Your timer has finished!',

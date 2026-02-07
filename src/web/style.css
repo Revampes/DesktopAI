@@ -1,15 +1,28 @@
 :root {
-    --bg-main: #1e1e2e;
-    --bg-sec: #252538;
-    --accent: #89b4fa;
-    --accent-hover: #b4befe;
-    --text: #cdd6f4;
-    --text-dim: #a6adc8;
-    --border: #45475a;
+    /* Dark Mode (Default) - Less Blue, more Neutral */
+    --bg-main: #18181b; /* Zinc 900 */
+    --bg-sec: #27272a;  /* Zinc 800 */
+    --accent: #a1a1aa;  /* Zinc 400 */
+    --accent-hover: #e4e4e7; /* Zinc 200 */
+    --text: #f4f4f5; /* Zinc 100 */
+    --text-dim: #a1a1aa;
+    --border: #3f3f46; /* Zinc 700 */
     --success: #a6e3a1;
     --danger: #f38ba8;
     --font-ui: 'Inter', sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
+}
+
+body.light-mode {
+    --bg-main: #ffffff;
+    --bg-sec: #f4f4f5;
+    --accent: #27272a;
+    --accent-hover: #000000;
+    --text: #18181b;
+    --text-dim: #52525b;
+    --border: #e4e4e7;
+    --success: #166534;
+    --danger: #9f1239;
 }
 
 * { box-sizing: border-box; user-select: none; }
@@ -18,6 +31,7 @@ body {
     background-color: var(--bg-main);
     color: var(--text);
     font-family: var(--font-ui);
+    transition: background-color 0.3s, color 0.3s;
     height: 100vh;
     overflow: hidden;
 }
@@ -54,16 +68,41 @@ body {
 
 .controls button {
     -webkit-app-region: no-drag;
-    background: transparent;
+    background: transparent; /* Updated: Transparent background */
     border: none;
-    color: var(--text);
+    color: var(--text); /* Updated: Use text color var */
     cursor: pointer;
     font-size: 16px;
     padding: 4px 8px;
     border-radius: 4px;
 }
 .controls button:hover { background-color: var(--border); }
-.controls button.close:hover { background-color: var(--danger); color: #111; }
+.controls button.close:hover { background-color: var(--danger); color: #111; } 
+
+/* General Button Styles for Consistency */
+button.btn-icon, button.btn-del {
+    background: transparent;
+    border: none;
+    color: var(--text); /* Use variable to follow theme */
+    cursor: pointer;
+    border-radius: 4px;
+    padding: 4px;
+}
+button.btn-icon:hover, button.btn-del:hover {
+    background: var(--bg-sec);
+    color: var(--accent);
+}
+
+/* Thematic Buttons (Switch Theme, etc) */
+#theme-btn, .setting-item button { 
+    background-color: var(--bg-sec); 
+    color: var(--text); 
+    border: 1px solid var(--border); 
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+#theme-btn:hover { background-color: var(--border); }
 
 .content-grid {
     display: flex;
@@ -83,7 +122,7 @@ body {
     display: flex;
     flex-direction: column;
     padding: 10px;
-    background-color: #181825;
+    background-color: var(--bg-main); /* Changed from fixed #181825 to var */
 }
 
 /* Tabs */
