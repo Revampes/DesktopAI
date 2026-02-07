@@ -1,0 +1,25 @@
+{
+    "tasks": [
+        {
+            "id": 1770472427953,
+            "title": "lecture ma1503",
+            "date": "2026-02-07",
+            "time": "22:00",
+            "end_time": "23:00",
+            "reminder": true,
+            "category": "Event",
+            "completed": false
+        },
+        {
+            "id": 1770473060023,
+            "title": "lecture computer science",
+            "date": "2026-02-07",
+            "time": "15:00",
+            "end_time": "17:00",
+            "reminder": true,
+            "category": "Event",
+            "completed": false
+        }
+    ],
+    "scratchpad": ""
+}

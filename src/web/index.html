@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DesktopAI</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <div class="header drag-handle">
+            <div class="title">DesktopAI</div>
+            <div class="controls">
+                <button class="btn-icon" onclick="pywebview.api.minimize()">_</button>
+                <button class="btn-icon close" onclick="pywebview.api.hide_window()">✕</button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content-grid">
+            
+            <!-- Left Column: Chat & Settings -->
+            <div class="col-left">
+                <!-- Tabs -->
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('chat')">Chat</button>
+                    <button class="tab" onclick="switchTab('settings')">Settings</button>
+                </div>
+
+                <!-- Chat View -->
+                <div id="view-chat" class="tab-content active">
+                    <div class="chat-history" id="chat-history">
+                        <div class="message ai">
+                            <div class="bubble">System Ready.</div>
+                        </div>
+                    </div>
+                    <div class="chat-input-area">
+                        <input type="text" id="chat-input" placeholder="Type a command..." autofocus autocomplete="off">
+                        <button id="send-btn" onclick="sendMessage()">➤</button>
+                    </div>
+                </div>
+
+                <!-- Settings View -->
+                <div id="view-settings" class="tab-content">
+                    <h3>Configuration</h3>
+                    <div class="setting-item">
+                        <label>Music Source</label>
+                        <select id="music-source" onchange="updateSetting('music_source', this.value)">
+                            <option value="Spotify">Spotify</option>
+                            <option value="YouTube">YouTube</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <button class="btn-danger" onclick="pywebview.api.quit_app()">Quit Application</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Dashboard Tools (Calendar/Tasks) -->
+            <div class="col-right">
+                <div class="tools-header">
+                    <button class="tab active" id="btn-dashboard">Dashboard</button>
+                    <!-- Inline Add Event Button -->
+                    <button class="btn-icon" style="margin-left:auto" onclick="addTask()">+</button>
+                </div>
+                
+                <div class="dashboard-grid">
+                    <!-- Calendar Widget -->
+                    <div class="dashboard-section compact">
+                        <div class="cal-header">
+                            <button class="btn-icon" onclick="changeMonth(-1)">&#9664;</button>
+                            <span id="cal-month-year">...</span>
+                            <button class="btn-icon" onclick="changeMonth(1)">&#9654;</button>
+                        </div>
+                        <div class="cal-weekdays">
+                            <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+                        </div>
+                        <div id="cal-grid" class="cal-grid"></div>
+                    </div>
+
+                    <!-- Schedule List -->
+                    <div class="dashboard-section" style="flex:1.5">
+                        <h4 id="schedule-header">Schedule</h4>
+                        <div id="deadlines-list" class="list-container">
+                            <!-- Injected via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Todos -->
+                    <div class="dashboard-section" style="flex:1">
+                        <h4>To-Do List</h4>
+                        <div class="input-group">
+                            <input type="text" id="new-task-input" placeholder="Add task...">
+                            <button onclick="addTask()">+</button>
+                        </div>
+                        <div id="todo-list" class="list-container">
+                            <!-- Injected via JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

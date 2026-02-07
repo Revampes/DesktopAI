@@ -1,0 +1,13 @@
+pycaw
+comtypes
+customtkinter
+screen-brightness-control
+ddgs
+requests
+beautifulsoup4
+pillow
+yt-dlp
+pystray
+AppOpener
+pywin32
+winshell
