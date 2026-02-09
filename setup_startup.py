@@ -10,8 +10,10 @@ def create_startup_shortcut():
     # Path to the main startup file (main.py)
     script_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "main.py"))
     
-    # Path to the Python executable
-    python_exe = sys.executable
+    # Path to the Python executable (use pythonw.exe for no console window)
+    python_exe = sys.executable.replace("python.exe", "pythonw.exe")
+    if not os.path.exists(python_exe):
+        python_exe = sys.executable # Fallback to python.exe if pythonw.exe is not found
     
     # Name of the shortcut
     shortcut_path = os.path.join(startup_dir, "DesktopAI.lnk")

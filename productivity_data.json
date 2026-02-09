@@ -19,6 +19,16 @@
             "reminder": true,
             "category": "Event",
             "completed": false
+        },
+        {
+            "id": 1770653293471,
+            "title": "2026-02-10 for Data Structures Lecture",
+            "date": "2026-02-10",
+            "time": "10:00",
+            "end_time": "12:00",
+            "reminder": true,
+            "category": "Event",
+            "completed": false
         }
     ],
     "scratchpad": ""
