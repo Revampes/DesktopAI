@@ -12,6 +12,7 @@ from .skills import music_player
 from .skills import translator
 from .skills import gaming_mode
 from .skills import timer
+from .simple_nlp import SimpleIntentClassifier
 
 class AIEngine:
     def __init__(self, productivity_manager=None):
@@ -21,6 +22,7 @@ class AIEngine:
         self.translator = translator.TranslatorSkill()
         self.gaming_mode = gaming_mode.GamingModeSkill(self)
         self.timer = timer.TimerSkill()
+        self.nlp = SimpleIntentClassifier()
 
     def set_music_mode(self, mode):
         return self.music.set_mode(mode)
@@ -152,6 +154,35 @@ class AIEngine:
                 
             return "Unknown music command. Try m!add, m!play, m!loop, or m!end."
 
+        # Rule 0.5: NLP Intent Classification
+        nlp_intent, nlp_score = self.nlp.predict(lower_input)
+        
+        # Check for negation and safe-guards
+        # Words that indicate the user does NOT want the action immediately
+        negation_words = [
+            "don't", "dont", "do not", "never", "no", "not", "abort", "cancel",
+            "how", "what", "why", "where", "who", "when", "which", # Question words
+            "ask", "about", "want" # Context/Discussion words
+        ]
+        is_negated = any(word in lower_input.split() for word in negation_words)
+
+        # High confidence overrides
+        if nlp_score > 0.7 and not is_negated:
+            if nlp_intent == "system.shutdown":
+                 return system_actions.shutdown_pc()
+            elif nlp_intent == "system.restart":
+                 return system_actions.restart_pc()
+            elif nlp_intent == "system.lock":
+                 return system_actions.lock_screen()
+            elif nlp_intent == "volume.up":
+                 return volume_control.set_volume("+10") # Increment logic handled by int conversion usually or we need to check set_volume impl
+            elif nlp_intent == "volume.down":
+                 return volume_control.set_volume("-10")
+            elif nlp_intent == "app.open":
+                 # Extract app name from remaining text? 
+                 # Often complex w/o Named Entity Recognition (NER), fallback to regex for extraction below
+                 pass 
+
         # Rule 1: Brightness Control
         brightness_match = re.search(r'brightness\D*(\d+)', lower_input)
         if brightness_match:
@@ -194,13 +225,12 @@ class AIEngine:
             return system_settings.toggle_night_light()
 
         # Rule 4: System Actions (Shutdown, Lock, Sleep, Theme)
-        if "shutdown" in user_input:
-            if "abort" in user_input or "cancel" in user_input:
-                return system_actions.shutdown_pc(abort=True)
-            return system_actions.shutdown_pc()
-            
-        if "restart" in user_input:
-            return system_actions.restart_pc()
+        # Handle abort specifically
+        if ("shutdown" in user_input or "restart" in user_input) and ("abort" in user_input or "cancel" in user_input):
+            return system_actions.shutdown_pc(abort=True)
+
+        # Note: Direct 'shutdown' or 'restart' string matching was removed to prevent accidental triggers.
+        # These are now handled by the NLP Intent Classifier (Rule 0.5) with safer confidence thresholds.
             
         if "lock" in user_input and ("screen" in user_input or "pc" in user_input or "computer" in user_input):
              return system_actions.lock_screen()
