@@ -1,0 +1,8 @@
+PyQt6==6.6.1
+screeninfo
+screen_brightness_control
+pycaw
+comtypes
+openai
+pydantic
+pyinstaller
