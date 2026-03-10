@@ -2,7 +2,7 @@ import sys
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, 
     QTabWidget, QLabel, QLineEdit, QPushButton, QSlider, QCheckBox, 
-    QComboBox, QTextEdit, QListWidget, QFileDialog, QInputDialog, QCalendarWidget, QTimeEdit
+    QComboBox, QTextEdit, QListWidget, QFileDialog, QInputDialog, QCalendarWidget, QTimeEdit, QFrame
 )
 from PyQt6.QtCore import Qt, QTimer, QPropertyAnimation, QRect, QPoint, QEasingCurve, QThread, pyqtSignal, QUrl, QSettings
 from PyQt6.QtGui import QCursor
@@ -416,6 +416,9 @@ class AssistantWindow(QMainWindow):
         
         # Internal Volume Control for Music Player moved to Settings Tab
         volume_layout = QHBoxLayout()
+        music_title = QVBoxLayout()
+        music_title.addWidget(QLabel("Music Settings"))
+        layout.addLayout(music_title)
         volume_layout.addWidget(QLabel("Music Volume:"))
         self.volume_slider = QSlider(Qt.Orientation.Horizontal)
         self.volume_slider.setRange(0, 100)
@@ -621,6 +624,12 @@ class AssistantWindow(QMainWindow):
     def _on_hide_finished(self):
         if not self.is_open:
             self.hide()
+
+    def create_horizontal_line(self):
+        line = QFrame()
+        line.setFrameShape(QFrame.Shape.HLine)
+        line.setFrameShadow(QFrame.Shadow.Sunken)
+        return line
 
 
 if __name__ == '__main__':
